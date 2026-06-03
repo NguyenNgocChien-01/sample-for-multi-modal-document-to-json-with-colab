@@ -75,33 +75,36 @@ def find_best_model_checkpoint(file_path):
     
     return None
 
-def get_latest_sagemaker_training_job(training_job_name_prefix, sagemaker_client=None):
-    if not sagemaker_client:
-        sagemaker_client = boto3.client('sagemaker')
+# def get_latest_sagemaker_training_job(training_job_name_prefix, sagemaker_client=None):
+#     if not sagemaker_client:
+#         sagemaker_client = boto3.client('sagemaker')
 
-    # nameContains must have length less than or equal to 63
-    training_job_name_prefix = training_job_name_prefix[:63]
+#     # nameContains must have length less than or equal to 63
+#     training_job_name_prefix = training_job_name_prefix[:63]
     
-    response = sagemaker_client.list_training_jobs(
-        NameContains=training_job_name_prefix,
-        SortBy='CreationTime',
-        SortOrder='Descending',
-        StatusEquals='Completed',
-        MaxResults=100,
-    )
+#     response = sagemaker_client.list_training_jobs(
+#         NameContains=training_job_name_prefix,
+#         SortBy='CreationTime',
+#         SortOrder='Descending',
+#         StatusEquals='Completed',
+#         MaxResults=100,
+#     )
     
-    if not response['TrainingJobSummaries']:
-        raise ValueError("No latest fine-tuning found. Did your fine-tuning finish?")
+#     if not response['TrainingJobSummaries']:
+#         raise ValueError("No latest fine-tuning found. Did your fine-tuning finish?")
         
-    # Get the most recent job name
-    job_name = response['TrainingJobSummaries'][0]['TrainingJobName']
+#     # Get the most recent job name
+#     job_name = response['TrainingJobSummaries'][0]['TrainingJobName']
     
-    # Get the training job details
-    job_description = sagemaker_client.describe_training_job(
-        TrainingJobName=job_name
-    )
-    return job_description
+#     # Get the training job details
+#     job_description = sagemaker_client.describe_training_job(
+#         TrainingJobName=job_name
+#     )
+#     return job_description
 
+# Kaggle environment does not have access to SageMaker, so we raise an error if this function is called
+def get_latest_sagemaker_training_job(*args, **kwargs):
+    raise NotImplementedError("Kaggle Environment: Please use a local path or Hugging Face instead.")
 
 def get_s3_suffix(s3_uri: str) -> str:
     parsed = urlparse(s3_uri)
@@ -181,73 +184,77 @@ def log_progress(message: str, clear: bool = True):
     except ImportError:
         pass  # Not in a notebook environment
 
-def download_and_extract(row: dict, output_dir: str = "extracted_files", s3_client=None) -> dict:
-    """
-    Download and extract tar.gz file from S3 for a single row with progress reporting
-    """
-    try:
-        if not s3_client:
-            s3_client = boto3.client("s3")
-        s3_path = row["inference_results_s3"]        
+# def download_and_extract(row: dict, output_dir: str = "extracted_files", s3_client=None) -> dict:
+#     """
+#     Download and extract tar.gz file from S3 for a single row with progress reporting
+#     """
+#     try:
+#         if not s3_client:
+#             s3_client = boto3.client("s3")
+#         s3_path = row["inference_results_s3"]        
 
-        model_suffix_s3 = get_s3_suffix(s3_path)
-        prefix = model_suffix_s3.split("/")[0]
+#         model_suffix_s3 = get_s3_suffix(s3_path)
+#         prefix = model_suffix_s3.split("/")[0]
 
-        output_path = Path(output_dir)
+#         output_path = Path(output_dir)
 
-        row_dir = output_path / prefix
-        row_dir.mkdir(parents=True, exist_ok=True)
+#         row_dir = output_path / prefix
+#         row_dir.mkdir(parents=True, exist_ok=True)
 
-        local_tar_path = output_path / "temp.tar.gz"
+#         local_tar_path = output_path / "temp.tar.gz"
 
-        bucket_name = s3_path.split("/")[2]
-        s3_key = "/".join(s3_path.split("/")[3:])
+#         bucket_name = s3_path.split("/")[2]
+#         s3_key = "/".join(s3_path.split("/")[3:])
 
-        # Get file size for progress bar
-        s3_object = s3_client.head_object(Bucket=bucket_name, Key=s3_key)
-        total_size = s3_object['ContentLength']
+#         # Get file size for progress bar
+#         s3_object = s3_client.head_object(Bucket=bucket_name, Key=s3_key)
+#         total_size = s3_object['ContentLength']
 
-        # Download with progress bar
-        with tqdm(total=total_size, unit='B', unit_scale=True, desc=f"Downloading {prefix}") as pbar:
-            s3_client.download_file(
-                bucket_name,
-                s3_key,
-                str(local_tar_path),
-                Callback=lambda bytes_transferred: pbar.update(bytes_transferred)
-            )
-        log_progress(f"Download completed for {prefix}", clear=True)
+#         # Download with progress bar
+#         with tqdm(total=total_size, unit='B', unit_scale=True, desc=f"Downloading {prefix}") as pbar:
+#             s3_client.download_file(
+#                 bucket_name,
+#                 s3_key,
+#                 str(local_tar_path),
+#                 Callback=lambda bytes_transferred: pbar.update(bytes_transferred)
+#             )
+#         log_progress(f"Download completed for {prefix}", clear=True)
 
-        # Extract tar.gz file with progress reporting
-        log_progress(f"Extracting {prefix}...", clear=True)
-        with tarfile.open(local_tar_path, "r:gz") as tar:
-            members = tar.getmembers()
-            for member in tqdm(members, desc="Extracting"):
-                tar.extract(member, path=row_dir)
-        log_progress(f"Extraction completed for {prefix}", clear=True)
+#         # Extract tar.gz file with progress reporting
+#         log_progress(f"Extracting {prefix}...", clear=True)
+#         with tarfile.open(local_tar_path, "r:gz") as tar:
+#             members = tar.getmembers()
+#             for member in tqdm(members, desc="Extracting"):
+#                 tar.extract(member, path=row_dir)
+#         log_progress(f"Extraction completed for {prefix}", clear=True)
 
 
-        # Find all JSONL files in the extracted directory
-        jsonl_files = glob.glob(str(row_dir / "**" / "*.jsonl"), recursive=True)
-        row["results_files"] = jsonl_files
+#         # Find all JSONL files in the extracted directory
+#         jsonl_files = glob.glob(str(row_dir / "**" / "*.jsonl"), recursive=True)
+#         row["results_files"] = jsonl_files
 
-        # Clean up tar.gz file
-        os.remove(local_tar_path)
+#         # Clean up tar.gz file
+#         os.remove(local_tar_path)
 
-        log_progress(f"✓ Successfully processed row {row.name} ({prefix})", clear=False)
-        return row
-    except boto3.exceptions.S3UploadFailedError as e:
-        error_msg = f"❌ S3 Upload Failed: {e}"
-        log_progress(error_msg, clear=False)
-    except tarfile.ReadError as e:
-        error_msg = f"❌ Error reading tar file: {e}"
-        log_progress(error_msg, clear=False)
-    except Exception as e:
-        error_msg = f"❌ Error processing row {row.name}: {e}"
-        log_progress(error_msg, clear=False)
+#         log_progress(f"✓ Successfully processed row {row.name} ({prefix})", clear=False)
+#         return row
+#     except boto3.exceptions.S3UploadFailedError as e:
+#         error_msg = f"❌ S3 Upload Failed: {e}"
+#         log_progress(error_msg, clear=False)
+#     except tarfile.ReadError as e:
+#         error_msg = f"❌ Error reading tar file: {e}"
+#         log_progress(error_msg, clear=False)
+#     except Exception as e:
+#         error_msg = f"❌ Error processing row {row.name}: {e}"
+#         log_progress(error_msg, clear=False)
+#     return row
+
+# Data kaggle
+def download_and_extract(row, output_dir="", s3_client=None):
+    row["results_files"] = glob.glob(
+        f"/kaggle/input/ocr-data-chien/**/*.jsonl", recursive=True
+    )
     return row
-
-
-
 
 
 

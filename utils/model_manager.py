@@ -51,7 +51,8 @@ class ModelManager:
             model_destination = self.model_weights_dir / model_suffix_s3
             model_dest_dir = model_destination.parent
             
-            self._download_from_s3(model_s3_uri, str(model_destination))
+            # self._download_from_s3(model_s3_uri, str(model_destination))
+            self._download_from_kaggle(model_s3_uri, str(model_destination))
             
             self._extract_tar(str(model_destination), str(model_dest_dir))
             
@@ -159,10 +160,15 @@ class ModelManager:
         return get_s3_suffix(s3_uri)
 
     
+    # @staticmethod
+    # def _download_from_s3(source: str, destination: str) -> None:
+    #     """Download a file from S3."""
+    #     subprocess.run(["aws", "s3", "cp", source, destination, "--quiet"], check=True, shell=False)
+
     @staticmethod
-    def _download_from_s3(source: str, destination: str) -> None:
-        """Download a file from S3."""
-        subprocess.run(["aws", "s3", "cp", source, destination, "--quiet"], check=True, shell=False)
+    def _download_from_kaggle(source, destination):
+        from huggingface_hub import snapshot_download
+        snapshot_download(repo_id=source, local_dir=destination)
         
     @staticmethod
     def _extract_tar(source: str, destination: str) -> None:

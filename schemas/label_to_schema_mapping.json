@@ -1,0 +1,54 @@
+{
+    "AUS_PASSPORT": {
+        "_schema_file": "aus_passport_schema.json",
+        "document_type": "document_type",
+        "issuing_country": null,
+        "document_number": "australian_passport_number",
+        "family_name": "australian_passport_last_name",
+        "given_names": "australian_passport_first_name",
+        "nationality": "australian_passport_nationality",
+        "date_of_birth": "australian_passport_date_of_birth",
+        "sex": "australian_passport_gender",
+        "date_of_issue": "australian_passport_date_of_issue",
+        "date_of_expiry": "australian_passport_expiry_date",
+        "place_of_birth": "australian_passport_place_of_birth",
+        "authority": "australian_passport_authority",
+        "mrz_line1": "australian_passport_mrz_line1",
+        "mrz_line2": "australian_passport_mrz_line2"
+    },
+    "AUS_MEDICARE_CARD": {
+        "_schema_file": "aus_medicare_card_schema.json",
+        "document_type": "document_type",
+        "card_type": "medicare_card_type",
+        "medicare_card_number": "medicare_card_number",
+        "cardholders": "cardholders",
+        "expiry_date": "medicare_card_expiry_date"
+    },
+    "AUS_DRIVER_LICENSE": {
+        "_schema_file": "aus_driver_license_schema.json",
+        "document_type": "document_type",
+        "front.holder.first_name": "australian_driver_license_first_name",
+        "front.holder.middle_name": "australian_driver_license_middle_name",
+        "front.holder.last_name": "australian_driver_license_last_name",
+        "front.address": {
+            "_target": "australian_driver_license_address",
+            "_transform": "join_address",
+            "_fields": ["address_line_1", "address_line_2", "suburb", "state", "postcode"]
+        },
+        "front.licence.licence_number": "australian_driver_license_licence_number",
+        "front.address.state": "australian_driver_license_state",
+        "back.card_number": "australian_driver_license_card_number",
+        "front.licence.licence_type_raw": "australian_driver_license_class",
+        "front.licence.expiry_date": "australian_driver_license_expiry_date",
+        "front.holder.dob": "australian_driver_license_dob"
+    },
+    "AUS_WWC_CARD": {
+        "_schema_file": "aus_wwc_card_schema.json",
+        "first_name": "wwc_first_name",
+        "last_name": "wwc_last_name",
+        "wwc_number": "wwc_card_number",
+        "expiry_date": "wwc_expiry_date",
+        "wwc_type": "wwc_type",
+        "issuing_state": "wwc_issuing_state"
+    }
+}

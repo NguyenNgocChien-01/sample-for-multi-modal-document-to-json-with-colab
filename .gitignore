@@ -1,6 +1,73 @@
+# Notebook files (old/numbered versions)
+1-*.ipynb
+1_*.ipynb
+
+# Cache files
+rows_cache-*.json
+*.cache
+
+# Models directory (large files)
+models/
+*.pth
+*.safetensors
+*.onnx
+*.pb
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
 .venv
-.idea
-data
-**/**/__pycache__
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+.jupyter/
 **/**/.ipynb_checkpoints
+
+# IDEs
+.vscode/
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+desktop.ini
+Thumbs.db
+
+# Environment
+.env
+.env.local
+*.secrets
+
+# Temporary/log files
+*.log
+*.tmp
+*.temp
+
+# Data (large files)
+data
+data/**/*.jpg
+data/**/*.png
+data/**/*.jpeg
+data/**/*.tiff
+
+# Docker
+*.tar
+*.tar.gz
 docker-artifacts/**-dockerfile.txt
+
+# AWS/SageMaker
+.aws/
+sagemaker_debug/
+data/swift_dataset_schema/
+data/swift_dataset_without_bill/
