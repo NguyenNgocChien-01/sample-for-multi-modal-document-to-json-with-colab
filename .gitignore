@@ -1,7 +1,5 @@
 # Notebook files (old/numbered versions)
-1-*.ipynb
-1_*.ipynb
-
+1*.ipynb
 # Cache files
 rows_cache-*.json
 *.cache
@@ -79,3 +77,5 @@ rows_*.json
 swift_dataset_bill
 
 swift_dataset_schema
+
+README.md
