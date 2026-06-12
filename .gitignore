@@ -73,3 +73,9 @@ data/swift_dataset_schema/
 data/swift_dataset_without_bill/
 004_visualize_evaluation-old.ipynb
 004_visualize_evaluation-1.ipynb
+
+rows_*.json
+
+swift_dataset_bill
+
+swift_dataset_schema
